@@ -1,24 +1,48 @@
+# server.py
 import socket
-import json
+from protocol import Message
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #TCP Socket
-host = 'localhost'
-port = 12345
+class Server:
+    def __init__(self, host='localhost', port=12345):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.bind((host, port))
+        
+    def start(self):
+        self.socket.listen()
+        print(f"Server listening on {self.socket.getsockname()}")
+        
+        while True:
+            client_socket, address = self.socket.accept()
+            print(f"Connection from {address}")
+            
+            try:
+                # Handle handshake
+                data = client_socket.recv(1024)
+                message = Message.decode(data)
+                
+                if message['type'] == 'CONNECT':
+                    # Send acceptance
+                    response = Message('ACCEPT', 'Connection established')
+                    client_socket.send(response.encode())
+                    
+                    # Handle client messages
+                    while True:
+                        data = client_socket.recv(1024)
+                        if not data:
+                            break
+                            
+                        message = Message.decode(data)
+                        print(f"Received: {message}")
+                        
+                        # Echo back with acknowledgment
+                        response = Message('ACK', message['payload'])
+                        client_socket.send(response.encode())
+                        
+            except Exception as e:
+                print(f"Error: {e}")
+            finally:
+                client_socket.close()
 
-server.bind((host, port))
-server.listen()
-print(f"Server listening on {host}:{port}")
-
-while True:
-    client_socket, address = server.accept()
-    print(f"Connection from {address}")
-    
-    #Recieve data
-    data = client_socket.recv(1024).decode('utf-8')
-    print(f"Recived: {data}")
-
-    #Respond to client
-    response = "Message received!"
-    client_socket.send(response.encode('utf-8'))
-
-    client_socket.close()    
+if __name__ == "__main__":
+    server = Server()
+    server.start()
