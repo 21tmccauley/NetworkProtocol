@@ -1,4 +1,3 @@
-# server.py
 import socket
 from protocol import Message
 
@@ -18,12 +17,17 @@ class Server:
             try:
                 # Handle handshake
                 data = client_socket.recv(1024)
+                if not data:
+                    continue
+                    
                 message = Message.decode(data)
+                print(f"Received message: {message}")
                 
                 if message['type'] == 'CONNECT':
                     # Send acceptance
                     response = Message('ACCEPT', 'Connection established')
                     client_socket.send(response.encode())
+                    print("Sent ACCEPT response")
                     
                     # Handle client messages
                     while True:
@@ -39,9 +43,10 @@ class Server:
                         client_socket.send(response.encode())
                         
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error handling client: {e}")
             finally:
                 client_socket.close()
+                print(f"Connection closed with {address}")
 
 if __name__ == "__main__":
     server = Server()
