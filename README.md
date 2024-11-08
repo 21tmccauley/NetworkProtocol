@@ -1,109 +1,169 @@
 # Custom Network Protocol Implementation
+## Overview
+This project implements two custom network protocols for educational purposes:
+1. A Transport Layer (Layer 4) protocol simulating TCP-like functionality over UDP
+2. An Application Layer (Layer 7) protocol for client-server communication
 
-## Project Overview
-A custom implementation of a network protocol demonstrating fundamental concepts of network programming and client-server architecture. This project showcases the development of a reliable communication protocol with features similar to real-world protocols like TCP/IP.
+The goal is to demonstrate fundamental networking concepts by building protocols from scratch, showing how different network layers interact, and implementing key features like reliable data transfer and connection management.
 
-## Features
-- Custom message format using JSON
-- Handshake mechanism for connection establishment
-- Reliable message delivery with acknowledgments
-- Error handling and connection management
-
-
-## Technical Stack
-- Python 3.x
-- Socket Programming
-- JSON for message serialization
+## Educational Purpose
+This project helps understand:
+- How transport layer protocols (like TCP) provide reliability over unreliable networks
+- How application layer protocols build on transport layer services
+- The relationship between different network layers
+- Core networking concepts like:
+  - Three-way handshake
+  - Reliable data transfer
+  - Flow control
+  - Connection management
+  - Client-server architecture
 
 ## Project Structure
 ```
 └── 📁NetworkProtocol
-    └── client.py
-    └── protocol.py
+    ├── Transport Layer (Layer 4)
+    │   ├── segment.py      # Defines transport segment structure
+    │   └── transport.py    # Implements reliable transport protocol
+    │
+    ├── Application Layer (Layer 7)
+    │   ├── protocol.py     # Defines application message format
+    │   ├── client.py       # Application client implementation
+    │   └── server.py       # Application server implementation
+    │
     └── README.md
-    └── server.py
 ```
 
 ## Protocol Specifications
 
-### Message Format
-Each message in the protocol follows this JSON structure:
-```json
+### Transport Layer Protocol (Layer 4)
+Simulates TCP-like functionality over UDP:
+
+#### Segment Format
+```python
 {
-    "version": "1.0",
-    "type": "<message_type>",
-    "timestamp": "<unix_timestamp>",
-    "payload": "<message_data>"
+    "seq_num": int,          # Sequence number
+    "ack_num": int,          # Acknowledgment number
+    "flags": str,            # Segment type (SYN, ACK, etc.)
+    "payload": Optional[dict] # Application layer data
 }
 ```
-### Message Types
-- CONNECT: Initial connection request from client to server
-- ACCEPT: Server's acceptance of connection request
-- DATA: Standard data transmission message
-- ACK: Acknowledgment of received message
-- ERROR: Error notification message
-- DISCONNECT: Connection termination request
 
-## Installation
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/project-name.git
+#### Segment Types
+- SYN: Initialize connection
+- SYN-ACK: Connection acknowledgment
+- ACK: Data acknowledgment
+- DATA: Carries payload
+- FIN: Connection termination
 
-# Navigate to the project directory
-cd project-name
+### Application Layer Protocol (Layer 7)
+Built on top of the transport layer:
 
-# Install dependencies (if any)
-pip install -r requirements.txt
-
+#### Message Format
+```python
+{
+    "version": "1.0",
+    "type": str,            # Message type
+    "timestamp": float,     # Unix timestamp
+    "payload": Any          # Message content
+}
 ```
-## Example Communication Flow
 
-### Starting the Server
+#### Message Types
+- CONNECT: Connection request
+- ACCEPT: Connection accepted
+- DATA: Application data
+- ERROR: Error notification
+
+## Implementation Status
+
+### Completed Features
+1. Transport Layer
+   - ✅ Basic segment structure
+   - ✅ UDP socket wrapper
+   - ✅ Simple client-server communication
+
+2. Application Layer
+   - ✅ Message format definition
+   - ✅ Basic protocol implementation
+   - ✅ Connection handling
+
+### In Progress
+1. Transport Layer
+   - ⏳ Three-way handshake
+   - ⏳ Reliable data transfer
+   - ⏳ Flow control
+   - ⏳ Connection termination
+
+2. Application Layer
+   - ⏳ Integration with transport layer
+   - ⏳ Enhanced error handling
+   - ⏳ Multiple client support
+
+## Running the Code
+
+### Testing Transport Layer
+1. Start transport server:
+```bash
+python transport.py server
+```
+
+2. Run transport client:
+```bash
+python transport.py
+```
+
+### Testing Application Layer
+1. Start application server:
 ```bash
 python server.py
 ```
-Server will start listening on localhost:12345
 
-### Running the Client
+2. Run application client:
 ```bash
 python client.py
 ```
-### Protocol Flow
 
-1. Connection Establishment:
+## Protocol Flow Examples
 
+### Transport Layer Connection
 ```
-CopyClient → Server: CONNECT message
-Server → Client: ACCEPT message
+Client          Server
+  |     SYN      |
+  |------------->|
+  |   SYN-ACK    |
+  |<-------------|
+  |     ACK      |
+  |------------->|
 ```
 
-2. Data Transmission:
+### Application Layer Communication
 ```
-CopyClient → Server: DATA message
-Server → Client: ACK message
+Client          Server
+  |   CONNECT    |
+  |------------->|
+  |   ACCEPT     |
+  |<-------------|
+  |    DATA      |
+  |------------->|
+  |     ACK      |
+  |<-------------|
 ```
-3. Connection Termination:
-```
-CopyClient → Server: DISCONNECT message
-Server: Closes connection
-```
-## Development Notes
-### Current Implementation
-- Basic client-server communication established
-- JSON-based message formatting
-- Handshake mechanism implemented
-- Error handling for common network issues
-- Connection state management
 
-### Future Enhancements
-1. Short Term
-   - Multiple client support using threading
-   - Enhanced error handling and recovery
-   - Connection timeout implementation
+## Development Roadmap
+1. Phase 1 (Current)
+   - Basic transport protocol implementation
+   - Simple reliable data transfer
+   - Basic application protocol
 
-2. Medium Term
-   - File transfer capabilities
-   - Basic encryption
-   - Message Compression(?)
+2. Phase 2
+   - Enhanced reliability features
+   - Flow control implementation
+   - Improved error handling
 
+3. Phase 3
+   - Protocol optimization
+   - Advanced features
+   - Complete documentation
 
+## Note
+This is an educational implementation designed to demonstrate networking concepts. It simulates transport layer functionality over UDP rather than implementing a true Layer 4 protocol, which would require lower-level network access.
