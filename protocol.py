@@ -9,10 +9,18 @@ class Message:
             'timestamp': time.time(),
             'payload': payload
         }
-
-        def encode(self):
-            return json.dumps(self.data).encode('utf-8')
-        
-        @staticmethod
-        def decode(data):
+    
+    def encode(self):
+        """Encode the message into bytes"""
+        return json.dumps(self.data).encode('utf-8')
+    
+    @staticmethod
+    def decode(data):
+        """Decode bytes into a message dictionary"""
+        if not data:  # Check if data is empty
+            raise ValueError("Empty data received")
+        try:
             return json.loads(data.decode('utf-8'))
+        except json.JSONDecodeError as e:
+            print(f"Failed to decode message: {data}")
+            raise e
