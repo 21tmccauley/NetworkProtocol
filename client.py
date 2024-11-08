@@ -11,7 +11,7 @@ client.connect((host, port))
 
 #Send a message to the server
 message = "Hello Server!"
-client.send(message.encoude('utf-8'))
+client.send(message.encode('utf-8'))
 
 #Receive a response
 response = client.recv(1024).decode('utf-8')

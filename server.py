@@ -19,6 +19,6 @@ while True:
 
     #Respond to client
     response = "Message received!"
-    client_socket.send(response.encode('ut-8'))
+    client_socket.send(response.encode('utf-8'))
 
     client_socket.close()    
